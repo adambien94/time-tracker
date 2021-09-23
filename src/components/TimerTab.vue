@@ -31,7 +31,7 @@
     <button 
       class="timer-tab__add-btn" 
       :disabled="isTimerRunning || shouldStopWatchBeDisabled"
-      @click="addLog"
+      @click="onAddLogBtnClick"
       >
         +
     </button>
@@ -80,6 +80,10 @@ export default defineComponent({
       parsedTime.setSeconds(seconds);
       return parsedTime.toISOString().substr(11, 8);
     },
+    onAddLogBtnClick() {
+      this.addLog();
+      this.clearTimer();
+    },
     addLog(): void {
       this.$emit('addLog', {
         id: new Date().valueOf(),
@@ -87,7 +91,6 @@ export default defineComponent({
         category: this.category,
         time: this.formatedTime
       })
-      this.clearTimer();
     },
     clearTimer(): void {
       this.currentTime = 0;
@@ -108,6 +111,7 @@ export default defineComponent({
 
 .timer-tab__category-input {
   width: 155px;
+  margin-left: 5px;
 }
 
 .timer-tab__input-wrapper {
