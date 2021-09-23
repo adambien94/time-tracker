@@ -7,7 +7,7 @@
         </span>
       </div> 
       <ul>
-        <li v-for="(log, idx) in day.logs" :key="`log-${idx}`">
+        <li v-for="log in day.logs" :key="`log-${log.id}`">
           <log-tab 
             :id="log.id"
             :activity="log.activity"

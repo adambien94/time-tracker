@@ -73,6 +73,20 @@ export default defineComponent({
       })
     }
   },
+  watch: {
+    logs: {
+      deep: true,
+      handler(value) {
+        window.localStorage.setItem('logs', JSON.stringify(value));
+      }
+    }
+  },
+  mounted() {
+    const logs: string | null = window.localStorage.getItem('logs');
+    if (logs) {
+      this.logs = JSON.parse(logs);
+    }
+  },
   methods: {
     formatDate(dateToFormat: Date): string {
       const date = new Date(dateToFormat);
