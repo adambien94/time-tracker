@@ -39,12 +39,18 @@ export default defineComponent({
     },
     currentDate: String
   },
-  methods: {
-    deleteLog(logId: number): void {
-      this.$emit('deleteLog', logId);
-    },
-    updateLog(log: ILog): void {
-      this.$emit('updateLog', log);
+  setup(_, context) {
+    const deleteLog = (logId: number): void => {
+      context.emit('deleteLog', logId);
+    }
+
+    const updateLog = (log: ILog): void => {
+      context.emit('updateLog', log);
+    }
+
+    return {
+      deleteLog,
+      updateLog
     }
   }
 });

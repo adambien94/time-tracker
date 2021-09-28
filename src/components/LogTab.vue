@@ -25,7 +25,7 @@
     <div class="log-tab__content" v-if="mode === 'edit-mode'">
       <input 
         type="text" 
-        placeholder="Activity*" 
+        placeholder="Activity" 
         v-model="editedActivity"
       >
       <span> - </span>
@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, computed  } from 'vue';
 
 export default defineComponent({
   name: 'log-tab',
@@ -55,38 +55,45 @@ export default defineComponent({
     time: String,
     date: String
   },
-  data() {
-    return {
-      mode: 'read-mode' as string,
-      editedActivity: '' as string,
-      editedCategory: '' as string,
-      editedTime: '' as string,
-    }
-  },
-  computed: {
-    shouldCategoryBeDisplayed(): boolean {
-      return !!this.category?.trim();
-    }
-  },
-  methods: {
-    onSaveBtnClick(): void {
-      this.updateLog();
-      this.closeEditMode();
-    },
-    updateLog(): void {
-      this.$emit('updateLog', {
-        id: this.id,
-        activity: this.editedActivity || this.activity,
-        category: this.editedCategory || this.category,
-        time: this.editedTime || this.time,
-        date: this.date
+  setup(props, context) {
+    const mode = ref<string>('read-mode');
+    const editedActivity = ref<string>('');
+    const editedCategory = ref<string>('');
+    const editedTime = ref<string>('');
+
+    const shouldCategoryBeDisplayed = computed(() => !!props.category?.trim())
+
+    const updateLog = (): void => {
+      context.emit('updateLog', {
+        id: props.id,
+        activity: editedActivity.value || props.activity,
+        category: editedCategory.value || props.category,
+        time: editedTime.value || props.time,
+        date: props.date
       });
-    },
-    closeEditMode(): void {
-      this.mode = 'read-mode';
-      this.editedActivity= '';
-      this.editedCategory= '';
-      this.editedTime= '';
+    }
+
+    const closeEditMode = (): void => {
+      mode.value = 'read-mode';
+      editedActivity.value= '';
+      editedCategory.value= '';
+      editedTime.value= '';
+    }
+
+    const onSaveBtnClick = (): void => {
+      updateLog();
+      closeEditMode();
+    }
+
+    return {
+      mode,
+      editedActivity,
+      editedCategory,
+      editedTime,
+      shouldCategoryBeDisplayed,
+      updateLog,
+      closeEditMode,
+      onSaveBtnClick
     }
   }
 });

@@ -39,64 +39,80 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 
 export default defineComponent({
   name: 'timer-tab',
-  data() {
-    return {
-      activityName: '' as string,
-      category: '' as string,
-      currentTime: 0 as number,
-      formatedTime: '00:00:00' as string,
-      ticker: undefined as undefined | number,
-      interval: 10 as number
+  setup(_, context) {
+    const activityName = ref<string>('');
+    const category = ref<string>('');
+    const currentTime = ref<number>(0);
+    const formatedTime = ref<string>('00:00:00');
+    const ticker = ref<undefined | number>(undefined);
+    const interval = ref<number>(10);
+
+    const isTimerRunning = computed((): boolean => !!ticker.value)
+    const shouldStopWatchBeDisabled = computed((): boolean => !activityName.value.trim())
+
+    const startWatch = (): void => {
+      ticker.value = setInterval((): void => {
+        currentTime.value++;
+        formatedTime.value = formatTime(currentTime.value);
+      }, interval.value);
     }
-  },
-  computed: {
-    isTimerRunning(): boolean {
-      return !!this.ticker;
-    },
-    shouldStopWatchBeDisabled(): boolean {
-      return !this.activityName.trim();
+
+    const stopWatch = (): void => {
+      clearInterval(ticker.value);
+      ticker.value = undefined;
     }
-  },
-  methods: {
-    startWatch(): void {
-      this.ticker = setInterval((): void => {
-        this.currentTime++;
-        this.formatedTime = this.formatTime(this.currentTime);
-      }, this.interval);
-    },
-    stopWatch(): void {
-      clearInterval(this.ticker);
-      this.ticker = undefined;
-    },
-    onTimerBtnClick(): void {
-      !this.ticker ? this.startWatch() : this.stopWatch(); 
-    },
-    formatTime(seconds: number): string {
+
+    const onTimerBtnClick = (): void => {
+      !ticker.value ? startWatch() : stopWatch(); 
+    }
+
+    const formatTime = (seconds: number): string => {
       const parsedTime: Date = new Date(0);
       parsedTime.setSeconds(seconds);
       return parsedTime.toISOString().substr(11, 8);
-    },
-    onAddLogBtnClick() {
-      this.addLog();
-      this.clearTimer();
-    },
-    addLog(): void {
-      this.$emit('addLog', {
+    }
+
+    const onAddLogBtnClick = (): void => {
+      addLog();
+      clearTimer();
+    }
+
+    const addLog = (): void => {
+      context.emit('addLog', {
         id: new Date().valueOf(),
-        activity: this.activityName,
-        category: this.category,
-        time: this.formatedTime
+        activity: activityName.value,
+        category: category.value,
+        time: formatedTime.value
       })
-    },
-    clearTimer(): void {
-      this.currentTime = 0;
-      this.formatedTime = '00:00:00';
-      this.activityName = '';
-      this.category = '';
+    }
+
+    const clearTimer = (): void => {
+      currentTime.value = 0;
+      formatedTime.value = '00:00:00';
+      activityName.value = '';
+      category.value = '';
+    }
+
+    return {
+      activityName,
+      category,
+      currentTime,
+      formatedTime,
+      ticker,
+      interval,
+      isTimerRunning,
+      shouldStopWatchBeDisabled,
+      startWatch,
+      stopWatch,
+      onTimerBtnClick,
+      formatTime,
+      onAddLogBtnClick,
+      addLog,
+      clearTimer
     }
   }
 });
